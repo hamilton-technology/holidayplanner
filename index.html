@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perth Family Holiday Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #0d9e75;
+    --teal-light: #e0f5ee;
+    --teal-dark: #075c44;
+    --blue: #2176c7;
+    --blue-light: #e4f0fb;
+    --amber: #d4820e;
+    --amber-light: #fdf0da;
+    --red: #c93a3a;
+    --red-light: #fceaea;
+    --sand: #f7f4ef;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --border: #e4e0d8;
+    --white: #ffffff;
+    --radius: 12px;
+    --radius-sm: 7px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--sand);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--ink);
+    color: white;
+    padding: 3rem 2rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(13,158,117,0.15);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 10%;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(33,118,199,0.12);
+  }
+  .hero-inner { max-width: 960px; margin: 0 auto; position: relative; z-index: 1; }
+  .hero-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 12px;
+    font-weight: 400;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 400;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .hero h1 em { color: #4ecfa3; font-style: italic; }
+  .hero p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.65);
+    max-width: 500px;
+    line-height: 1.6;
+  }
+  .hero-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+  }
+  .hero-tag {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.75);
+    border: 0.5px solid rgba(255,255,255,0.15);
+  }
+
+  /* MAIN LAYOUT */
+  .main { max-width: 960px; margin: 0 auto; padding: 2rem; }
+
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 2rem;
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 5px;
+    border: 1px solid var(--border);
+    width: fit-content;
+  }
+  .tab-btn {
+    padding: 9px 22px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--muted);
+    border-radius: 8px;
+    transition: all 0.18s;
+    font-weight: 400;
+  }
+  .tab-btn.active {
+    background: var(--ink);
+    color: white;
+    font-weight: 500;
+  }
+  .tab-btn:hover:not(.active) { background: var(--sand); color: var(--ink); }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* MONTH GRID */
+  .month-section-label {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-weight: 400;
+  }
+  .month-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-bottom: 2rem;
+  }
+  @media(max-width:600px){ .month-grid { grid-template-columns: repeat(4,1fr); } }
+  .month-btn {
+    padding: 10px 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    text-align: center;
+    transition: all 0.15s;
+    color: var(--ink);
+    position: relative;
+  }
+  .month-btn:hover { border-color: #aaa; background: var(--sand); }
+  .month-btn.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: white;
+    font-weight: 500;
+  }
+  .sch-dot {
+    display: block;
+    font-size: 10px;
+    color: var(--teal);
+    margin-top: 2px;
+    font-weight: 500;
+  }
+  .month-btn.active .sch-dot { color: #4ecfa3; }
+
+  /* FILTERS */
+  .filters-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .filter-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-label {
+    font-size: 12px;
+    color: var(--muted);
+    min-width: 46px;
+    font-weight: 400;
+  }
+  .filter-btn {
+    padding: 5px 13px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--white);
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: #999; color: var(--ink); }
+  .filter-btn.active { background: var(--ink); border-color: var(--ink); color: white; }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--muted);
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .legend-pip {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+  }
+
+  /* MONTH BANNER */
+  .month-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .month-pill {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--ink);
+  }
+  .school-badge {
+    font-size: 11px;
+    background: var(--teal-light);
+    color: var(--teal-dark);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  /* DESTINATION GRID */
+  .dest-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+    gap: 12px;
+  }
+  .dest-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem;
+    cursor: pointer;
+    transition: all 0.18s;
+    border-left: 4px solid var(--border);
+  }
+  .dest-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .dest-card.great { border-left-color: var(--teal); }
+  .dest-card.good  { border-left-color: var(--blue); }
+  .dest-card.ok    { border-left-color: var(--amber); }
+  .dest-card.avoid { border-left-color: var(--red); }
+
+  .dest-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .dest-card-name { font-size: 15px; font-weight: 500; line-height: 1.2; }
+  .dest-card-country { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .rating-pill {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+  .pill-great { background: var(--teal-light); color: var(--teal-dark); }
+  .pill-good  { background: var(--blue-light); color: #0e4f99; }
+  .pill-ok    { background: var(--amber-light); color: #7a4c08; }
+  .pill-avoid { background: var(--red-light); color: #8a1f1f; }
+
+  .dest-card-meta {
+    display: flex;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .type-tag {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .tag-beach   { background: #ddf4ee; color: #0a6645; }
+  .tag-ski     { background: #ddeeff; color: #0a3f82; }
+  .tag-city    { background: #eeecfe; color: #3a2899; }
+  .tag-culture { background: #fdeef5; color: #7a1f4d; }
+  .tag-nature  { background: #edf6dc; color: #2c5c0a; }
+  .tag-desert  { background: #fdf1dc; color: #7a4608; }
+
+  .dest-card-tip {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.55;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+    margin-top: 4px;
+  }
+
+  /* DESTINATION DETAIL */
+  .dest-select-wrap { margin-bottom: 1.5rem; }
+  .dest-select-wrap label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 400;
+  }
+  select {
+    width: 100%;
+    max-width: 420px;
+    padding: 11px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  select:focus { outline: none; border-color: #888; }
+
+  .detail-header {
+    margin-bottom: 1.5rem;
+  }
+  .detail-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+    margin-bottom: 4px;
+  }
+  .detail-sub {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .detail-types { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* MONTH BAR CHART */
+  .bar-chart-wrap {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .bar-chart-title {
+    font-size: 12px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    font-weight: 400;
+  }
+  .bar-chart {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 4px;
+    align-items: end;
+    height: 100px;
+  }
+  .bar-col { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+  .bar-fill {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 500;
+    min-height: 14px;
+  }
+  .bar-great { background: #9fe1cb; color: #085041; }
+  .bar-good  { background: #a8ccf0; color: #0c447c; }
+  .bar-ok    { background: #f7c97a; color: #633806; }
+  .bar-avoid { background: #f0a5a5; color: #791f1f; }
+  .bar-label { font-size: 9px; color: var(--muted); margin-top: 3px; }
+  .bar-sch   { font-size: 8px; color: var(--teal); margin-top: 1px; }
+
+  /* INFO CARDS */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+  @media(max-width:480px){ .info-grid { grid-template-columns: 1fr; } }
+  .info-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+  }
+  .info-card-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 5px; }
+  .info-card-value { font-size: 14px; font-weight: 500; line-height: 1.4; }
+
+  /* TIPS BLOCKS */
+  .tips-block {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem;
+    margin-bottom: 1rem;
+  }
+  .tips-block h3 {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .tip-item {
+    font-size: 13px;
+    color: #444;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    line-height: 1.55;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .tip-item:last-child { border-bottom: none; }
+  .tip-check { color: var(--teal); flex-shrink: 0; margin-top: 1px; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+
+  /* NO RESULTS */
+  .no-results {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--muted);
+    font-size: 14px;
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+
+  @media(max-width:600px){
+    .main { padding: 1.25rem; }
+    .hero { padding: 2rem 1.25rem 2rem; }
+    .tab-bar { width: 100%; }
+    .tab-btn { flex: 1; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-label">Departing Perth, Western Australia</div>
+    <h1>Find your perfect<br><em>family holiday</em></h1>
+    <p>Discover the best destinations for families with children — matched to the time of year, school holidays, and the kind of trip you're after.</p>
+    <div class="hero-tags">
+      <span class="hero-tag">✈ Flights from Perth</span>
+      <span class="hero-tag">📅 WA School holidays</span>
+      <span class="hero-tag">🏖 Beach · 🎿 Ski · 🏙 City · 🌿 Nature · 🏜 Desert</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('byMonth')">Browse by month</button>
+    <button class="tab-btn" onclick="switchTab('byDest')">Browse by destination</button>
+  </div>
+
+  <!-- BY MONTH -->
+  <div id="byMonth" class="section active">
+    <div class="month-section-label">Select a month</div>
+    <div class="month-grid" id="monthGrid"></div>
+
+    <div class="filters-wrap">
+      <div class="filter-row">
+        <span class="filter-label">Region</span>
+        <button class="filter-btn active" onclick="setFilter('region','all',this)">All</button>
+        <button class="filter-btn" onclick="setFilter('region','australia',this)">Australia</button>
+        <button class="filter-btn" onclick="setFilter('region','asia',this)">Asia</button>
+        <button class="filter-btn" onclick="setFilter('region','pacific',this)">Pacific</button>
+        <button class="filter-btn" onclick="setFilter('region','middleeast',this)">Middle East</button>
+        <button class="filter-btn" onclick="setFilter('region','longhaul',this)">Long-haul</button>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Type</span>
+        <button class="filter-btn active" onclick="setFilter('type','all',this)">All</button>
+        <button class="filter-btn" onclick="setFilter('type','beach',this)">Beach</button>
+        <button class="filter-btn" onclick="setFilter('type','ski',this)">Ski</button>
+        <button class="filter-btn" onclick="setFilter('type','city',this)">City</button>
+        <button class="filter-btn" onclick="setFilter('type','nature',this)">Nature</button>
+        <button class="filter-btn" onclick="setFilter('type','desert',this)">Desert</button>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span style="font-size:12px;color:var(--muted)">Rating:</span>
+      <span class="legend-item"><span class="legend-pip" style="background:var(--teal)"></span>Great</span>
+      <span class="legend-item"><span class="legend-pip" style="background:var(--blue)"></span>Good</span>
+      <span class="legend-item"><span class="legend-pip" style="background:var(--amber)"></span>Okay</span>
+      <span class="legend-item"><span class="legend-pip" style="background:var(--red)"></span>Avoid</span>
+      <span class="legend-item"><span style="color:var(--teal);font-size:13px">●</span> WA school holidays</span>
+    </div>
+
+    <div id="monthBanner" class="month-banner"></div>
+    <div id="destResults"></div>
+  </div>
+
+  <!-- BY DESTINATION -->
+  <div id="byDest" class="section">
+    <div class="dest-select-wrap">
+      <label>Choose a destination</label>
+      <select id="destSelect" onchange="showDestDetail()">
+        <option value="">— Select a destination —</option>
+      </select>
+    </div>
+    <div id="destDetail"></div>
+  </div>
+</div>
+
+<footer>
+  Perth Family Holiday Planner &nbsp;·&nbsp; All ratings based on weather, school holiday alignment and family suitability &nbsp;·&nbsp; Always check current travel advisories before booking
+</footer>
+
+<script>
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const WA_SCH=[0,1,3,6,7,9];
+let selMonth=new Date().getMonth(), selRegion='all', selType='all';
+
+const DESTS=[
+  {id:'bali',name:'Bali',country:'Indonesia',region:'asia',flag:'🇮🇩',flight:'4–5 hrs',kidRating:5,types:['beach','nature'],
+   ratings:[4,4,4,4,3,2,2,2,3,4,4,4],
+   notes:['Apr–May and Oct–Nov are the sweet spot — dry, warm and less crowded','Jun–Aug is dry season but busier and pricier','Dec–Mar brings heavy rain and high humidity — best avoided with young kids'],
+   kidsTips:['Ubud monkey forest, rice terraces and cooking classes are great for families','Many resorts have excellent kids clubs and shallow pool areas','Sanur is calmer and more family-friendly than Kuta','Carry cash — many smaller vendors don\'t take cards']},
+
+  {id:'tokyo',name:'Tokyo & Kyoto',country:'Japan',region:'asia',flag:'🇯🇵',flight:'9–10 hrs',kidRating:5,types:['city','culture'],
+   ratings:[3,3,4,5,4,3,3,3,4,5,4,2],
+   notes:['Mar–May (cherry blossoms) and Oct are ideal — mild and beautiful','Jun–Jul brings the rainy season — manageable but humid','Aug is very hot and humid, though summer festivals are exciting for kids','Dec–Feb is cold but magical'],
+   kidsTips:['DisneySea and Disneyland Tokyo are world-class for families','Shinkansen bullet trains are unforgettable for kids','Food culture is very kid-friendly — ramen, sushi, udon everywhere','Konbini (convenience stores) open 24/7 — lifesavers with kids']},
+
+  {id:'hokkaido_ski',name:'Hokkaido (Skiing)',country:'Japan',region:'asia',flag:'🇯🇵',flight:'9–10 hrs',kidRating:5,types:['ski'],
+   ratings:[4,3,1,1,1,1,1,1,1,1,2,4],
+   notes:['Dec–Feb is prime ski season — Niseko and Furano have world-class powder','Jan is peak snow quality — the driest, lightest powder in the world','Feb–Mar sees the Sapporo Snow Festival, outstanding for families','Outside winter, Hokkaido is beautiful but the main ski draw disappears'],
+   kidsTips:['Niseko has ski schools for kids as young as 3','Many ryokan (traditional inns) are family-friendly with onsen','Snow tubing and snowshoeing don\'t require ski experience','Ramen is the local speciality — perfect for cold days and hungry kids']},
+
+  {id:'hokkaido_summer',name:'Hokkaido (Summer)',country:'Japan',region:'asia',flag:'🇯🇵',flight:'9–10 hrs',kidRating:4,types:['nature'],
+   ratings:[1,1,1,2,4,4,4,4,3,2,1,1],
+   notes:['Jun–Aug is green and beautiful — Hokkaido escapes Japan\'s summer heat','Furano\'s lavender fields peak in mid-July — spectacular','Far cooler than the rest of Japan in summer — max 25°C','Sep brings stunning autumn foliage across the national parks'],
+   kidsTips:['Furano lavender farms and flower fields are magical for families','Farm stays and cheese/butter-making experiences unique to Hokkaido','Bear Mountain at Noboribetsu is a hit with kids','Excellent cycling and hiking trails across the national parks']},
+
+  {id:'singapore',name:'Singapore',country:'Singapore',region:'asia',flag:'🇸🇬',flight:'5 hrs',kidRating:5,types:['city'],
+   ratings:[3,4,4,4,4,3,3,4,4,4,4,3],
+   notes:['Feb–Apr are the driest months — best for outdoor attractions','Hot and humid year-round (28–33°C) — indoor attractions help','Rain is typically short and sharp — rarely ruins a full day','Christmas is festive and fun but expect peak pricing'],
+   kidsTips:['Universal Studios, Sentosa and S.E.A. Aquarium are exceptional','Gardens by the Bay is magical at night with the free light show','Zoo and Night Safari rated among the world\'s best for families','English-speaking, very safe and easy to navigate with kids']},
+
+  {id:'thailand',name:'Thailand',country:'Thailand',region:'asia',flag:'🇹🇭',flight:'7–8 hrs',kidRating:4,types:['beach','culture'],
+   ratings:[4,5,5,4,2,1,1,2,3,4,5,4],
+   notes:['Nov–Apr is dry season — ideal for beaches in Phuket or Koh Samui','May–Oct is monsoon season — heavy rain and rough seas, avoid beach trips','Chiang Mai is cooler and drier — good for cultural trips year-round','Apr (Songkran water festival) is spectacular but very busy'],
+   kidsTips:['Phuket and Koh Lanta beaches are excellent for families','Ethical elephant sanctuaries are incredible experiences for kids','Street food culture is fantastic — kids love pad thai and mango sticky rice','Travel insurance and health cover essential']},
+
+  {id:'dubai',name:'Dubai',country:'UAE',region:'middleeast',flag:'🇦🇪',flight:'11–12 hrs',kidRating:5,types:['city','desert','beach'],
+   ratings:[4,5,5,4,2,1,1,1,2,4,5,4],
+   notes:['Oct–Apr is the golden window — warm, sunny and manageable (22–32°C)','Nov–Mar is peak season — best weather but highest prices','Jun–Sep is brutally hot (40–48°C) — dangerous outdoors for children','Apr and Oct are great value shoulder months with very good weather'],
+   kidsTips:['Atlantis Aquaventure waterpark and Legoland are outstanding for families','Dubai Frame, Museum of the Future and Dubai Mall are all kid-friendly','Desert safari with dune bashing and camel riding is unforgettable','Ski Dubai (indoor ski resort) is a surreal experience kids love','Extremely safe, English widely spoken, very family-oriented culture']},
+
+  {id:'abudhabi',name:'Abu Dhabi',country:'UAE',region:'middleeast',flag:'🇦🇪',flight:'11–12 hrs',kidRating:5,types:['city','desert','beach'],
+   ratings:[4,5,5,4,2,1,1,1,2,4,5,4],
+   notes:['Oct–Apr is the ideal window — warm days, cool evenings, low humidity','Nov–Mar offers the best weather; Apr and Oct are great value shoulder months','Jun–Sep is extreme heat (40–47°C) — outdoor time not viable for families','Abu Dhabi is less frenetic than Dubai — often preferred for families'],
+   kidsTips:['Ferrari World and Warner Bros World are exceptional theme parks for kids','Yas Waterworld is one of the best waterparks in the world','Sheikh Zayed Grand Mosque is breathtaking — respectful dress required','Corniche beach is clean, calm and excellent for young children','Combines beautifully with a Dubai leg in the same trip']},
+
+  {id:'broome',name:'Broome',country:'Australia',region:'australia',flag:'🇦🇺',flight:'2–3 hrs',kidRating:5,types:['beach','nature'],
+   ratings:[1,1,2,4,5,5,5,5,4,3,2,1],
+   notes:['May–Sep is perfect dry season weather — sunny at 28°C with no humidity','Oct–Apr is the wet season — extreme heat, humidity and cyclone risk','Cable Beach is one of Australia\'s finest family beaches','Jul–Aug school holidays align perfectly with ideal weather'],
+   kidsTips:['Cable Beach sunset camel rides are iconic','Gantheaume Point dinosaur footprints fascinate kids of all ages','Staircase to the Moon (Mar–Oct) is a stunning natural event','Short flight from Perth makes it ideal for younger children']},
+
+  {id:'cairns',name:'Cairns & Great Barrier Reef',country:'Australia',region:'australia',flag:'🇦🇺',flight:'4–5 hrs',kidRating:5,types:['beach','nature'],
+   ratings:[1,1,2,4,5,5,5,5,4,4,3,2],
+   notes:['Jun–Sep is the best time — dry, warm (26°C) and no stingers in the water','Oct–May brings the wet season and box jellyfish — ocean swimming is restricted','The Great Barrier Reef is best experienced in the dry season','Rainforest and tablelands attractions are available year-round'],
+   kidsTips:['Snorkelling on the Great Barrier Reef is a life-changing experience for kids','Green Island is a quick ferry ride and perfect for young children','Kuranda Scenic Railway and Skyrail are family highlights','Tjapukai Aboriginal Cultural Park is excellent for older children']},
+
+  {id:'goldcoast',name:'Gold Coast',country:'Australia',region:'australia',flag:'🇦🇺',flight:'4–5 hrs',kidRating:5,types:['beach','city'],
+   ratings:[3,3,4,4,4,4,4,4,4,4,4,3],
+   notes:['Apr–May and Sep–Oct are ideal — warm, uncrowded and affordable','Dec–Jan is peak summer — hot, busy and expensive but great beach weather','Jun–Aug is mild — perfect for theme parks and hinterland walks','Good year-round but avoid summer if heat is a concern for little ones'],
+   kidsTips:['Movie World, Sea World, Dreamworld and Wet\'n\'Wild all within 30 minutes','Burleigh Heads beach is calmer and less crowded than Surfers Paradise','Australia Zoo nearby is outstanding for families','Springbrook and Lamington national parks offer excellent day trips']},
+
+  {id:'melbourne',name:'Melbourne',country:'Australia',region:'australia',flag:'🇦🇺',flight:'4 hrs',kidRating:4,types:['city','culture'],
+   ratings:[3,3,3,4,3,3,3,3,4,4,4,3],
+   notes:['Sep–Nov (spring) and Mar–Apr (autumn) are most pleasant','Dec–Feb can be hot with famously unpredictable weather','Jun–Aug is cool and rainy but winter school holidays work well','Indoor attractions make Melbourne viable year-round'],
+   kidsTips:['Melbourne Zoo, SEA LIFE Aquarium and Scienceworks are excellent','Penguin Parade at Phillip Island is unforgettable','Great Ocean Road is iconic and very manageable as a day trip','Superb cafe culture and family-friendly dining throughout the city']},
+
+  {id:'snowy',name:'Snowy Mountains (Skiing)',country:'Australia',region:'australia',flag:'🇦🇺',flight:'4 hrs + 2 hrs drive',kidRating:4,types:['ski'],
+   ratings:[1,1,1,1,1,4,5,4,2,1,1,1],
+   notes:['Jun–Sep is ski season — Thredbo and Perisher are the main resorts','Jul–Aug is peak season and aligns with WA school holidays perfectly','Snow quality varies year to year — check forecasts before booking','Sep can be slushy but quieter and cheaper than peak winter months'],
+   kidsTips:['Ski schools at Thredbo and Perisher are excellent for young beginners','Tube Town at Perisher is great for non-skiing kids','Plenty of cosy lodge accommodation and family packages available','Combine with a Canberra visit for a longer trip from Perth']},
+
+  {id:'nz_summer',name:'New Zealand (Summer)',country:'New Zealand',region:'pacific',flag:'🇳🇿',flight:'5 hrs',kidRating:5,types:['nature','beach'],
+   ratings:[4,4,3,2,2,1,1,2,3,4,5,5],
+   notes:['Dec–Feb is NZ summer — warm, long days, beach and outdoor adventures','Aligns with Australian summer school holidays — very popular and busy','Mar–Apr is beautiful autumn — fewer crowds, spectacular foliage','Bay of Islands, Coromandel and Abel Tasman are at their best in summer'],
+   kidsTips:['Hobbiton is magical for families with Lord of the Rings fans','Rotorua geothermal attractions and Māori culture experiences are outstanding','Whale watching in Kaikoura is world-class','Hire a campervan — NZ is made for family road trips']},
+
+  {id:'nz_ski',name:'New Zealand (Skiing)',country:'New Zealand',region:'pacific',flag:'🇳🇿',flight:'5 hrs',kidRating:4,types:['ski'],
+   ratings:[1,1,1,1,2,4,5,5,3,1,1,1],
+   notes:['Jun–Aug is ski season — Queenstown (Coronet Peak, The Remarkables) is the hub','Jul is peak month — aligns well with WA winter school holidays','Queenstown is one of the world\'s great ski resort towns','The surrounding scenery (Fiordland, Milford Sound) is worth the trip alone'],
+   kidsTips:['Ski schools at Coronet Peak and The Remarkables are excellent for kids','Queenstown has incredible non-ski activities — gondola, luge, scenic flights','Milford Sound day trip is one of the world\'s great experiences','Combine with a Hobbiton stop en route for younger kids']},
+
+  {id:'fiji',name:'Fiji',country:'Fiji',region:'pacific',flag:'🇫🇯',flight:'5 hrs',kidRating:5,types:['beach'],
+   ratings:[2,2,3,4,5,5,4,4,4,4,3,2],
+   notes:['May–Oct is the dry season — sunny, 26°C, calm seas and low humidity','Nov–Apr is cyclone season and very humid — some resorts discount heavily','Jul–Aug are peak months — school holidays align perfectly','The Mamanuca and Yasawa islands are exceptional family destinations'],
+   kidsTips:['Many resorts offer free kids clubs and babysitting services','Snorkelling straight off the beach at most island resorts','Incredibly warm and welcoming culture — locals adore children','Nadi as a hub makes inter-island day trips easy and affordable']},
+
+  {id:'uk',name:'United Kingdom',country:'UK & Ireland',region:'longhaul',flag:'🇬🇧',flight:'16–17 hrs',kidRating:4,types:['city','culture'],
+   ratings:[2,2,2,3,4,4,4,4,3,3,2,2],
+   notes:['Jun–Aug is summer — warmest, longest days and school holidays align','May–Sep is the optimal window — some rain but very manageable','Oct–Mar is cold, grey and wet — not ideal for families with young children','December in London can be magical despite the cold'],
+   kidsTips:['London\'s free world-class museums — Natural History, Science, British Museum','Harry Potter Studio Tour is an absolute must for older kids','Scottish Highlands and castle trails are incredible for adventurous families','Rent a car for the countryside — essential beyond London']},
+
+  {id:'italy',name:'Italy',country:'Italy',region:'longhaul',flag:'🇮🇹',flight:'16–17 hrs',kidRating:4,types:['city','culture','beach'],
+   ratings:[3,3,4,4,4,3,2,3,4,4,3,3],
+   notes:['Apr–Jun and Sep–Oct are ideal — warm, less crowded and more affordable','Jul–Aug is peak summer — very hot (35–40°C) and extremely crowded','Christmas markets in December are magical in northern Italy','Avoid Rome and Florence in August — oppressively hot and tourist-packed'],
+   kidsTips:['Pizza and gelato — kids are immediately at home with Italian food','Rome\'s ancient ruins are better appreciated by kids aged 8+','Lake Garda combines beaches, water parks and history — perfect for families','Excellent train network — easy to base yourself and explore by rail']},
+
+  {id:'usa',name:'USA',country:'United States',region:'longhaul',flag:'🇺🇸',flight:'17–20 hrs',kidRating:4,types:['city','nature','beach'],
+   ratings:[3,3,4,5,4,3,3,3,4,4,3,3],
+   notes:['Apr–May and Sep–Oct are sweet spots for most US destinations','Jun–Aug is school summer — theme parks and beaches are very busy but superb','Winter in Florida (Nov–Mar) is lovely — warm and less crowded','New York is year-round but Apr–Jun and Sep–Oct are most pleasant'],
+   kidsTips:['Orlando (Disney World, Universal, SeaWorld) is the ultimate family destination','California: Disneyland, Yosemite, San Diego Zoo and beaches are all outstanding','Pacific Coast Highway road trip is unforgettable for the whole family','US portion sizes and kids menus — children are always very well catered for']},
+
+  {id:'alps',name:'European Alps (Skiing)',country:'France / Austria / Switzerland',region:'longhaul',flag:'🏔️',flight:'17–18 hrs',kidRating:4,types:['ski'],
+   ratings:[4,3,1,1,1,1,1,1,1,1,2,4],
+   notes:['Dec–Feb is the core ski season — Chamonix, Verbier, Zermatt, St Anton','Jan–Feb has the most reliable snow and best conditions','Christmas and New Year school holidays align well but resorts are expensive','Mar can offer excellent spring skiing — quieter and cheaper with softer snow'],
+   kidsTips:['French resorts (Les Gets, Morzine) are particularly family-friendly and affordable','Ski school from age 3–4 — European instructors are excellent with young children','Après-ski culture in the villages is warm and family-friendly','Combine skiing with a few days in Paris for an epic long-haul trip']},
+
+  {id:'canada_ski',name:'Canada (Skiing)',country:'Canada',region:'longhaul',flag:'🇨🇦',flight:'17–19 hrs',kidRating:5,types:['ski'],
+   ratings:[4,3,1,1,1,1,1,1,1,1,2,4],
+   notes:['Dec–Mar is ski season — Whistler (BC) is one of the world\'s greatest resorts','Jan–Feb has the most reliable snow — Whistler Blackcomb is spectacular','Banff and Lake Louise offer stunning scenery alongside world-class skiing','Mar is great value — still excellent snow, fewer crowds'],
+   kidsTips:['Whistler has exceptional ski schools and dedicated kids\' terrain parks','Banff townsite is charming and very family-friendly with great accommodation','Ice skating on frozen Lake Louise is an iconic experience for kids','Wildlife sightings (elk, bears in spring) add an adventure element']},
+];
+
+function getRating(r){return r>=4?'Great':r===3?'Good':r===2?'Okay':'Avoid'}
+function getRClass(r){return r>=4?'great':r===3?'good':r===2?'ok':'avoid'}
+function getRPill(r){return r>=4?'pill-great':r===3?'pill-good':r===2?'pill-ok':'pill-avoid'}
+function getBarClass(r){return r>=4?'bar-great':r===3?'bar-good':r===2?'bar-ok':'bar-avoid'}
+
+const TYPE_LABELS={beach:'Beach',ski:'Ski',city:'City',culture:'Culture',nature:'Nature',desert:'Desert'};
+const TYPE_CSS={beach:'tag-beach',ski:'tag-ski',city:'tag-city',culture:'tag-culture',nature:'tag-nature',desert:'tag-desert'};
+function typeTags(types){return types.map(t=>`<span class="type-tag ${TYPE_CSS[t]}">${TYPE_LABELS[t]}</span>`).join('')}
+
+function buildMonthGrid(){
+  document.getElementById('monthGrid').innerHTML=MONTHS.map((m,i)=>{
+    const sch=WA_SCH.includes(i);
+    return `<button class="month-btn${i===selMonth?' active':''}" onclick="selectMonth(${i})">
+      ${m}${sch?`<span class="sch-dot">● hols</span>`:''}
+    </button>`;
+  }).join('');
+}
+
+function selectMonth(m){selMonth=m;buildMonthGrid();renderResults()}
+
+function setFilter(kind,val,btn){
+  if(kind==='region') selRegion=val; else selType=val;
+  btn.closest('.filter-row').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderResults();
+}
+
+function renderResults(){
+  const isSch=WA_SCH.includes(selMonth);
+  document.getElementById('monthBanner').innerHTML=
+    `<span class="month-pill">${MONTHS[selMonth]}</span>`+
+    (isSch?`<span class="school-badge">● WA school holidays</span>`:'');
+
+  let dests=DESTS.filter(d=>{
+    if(selRegion!=='all'&&d.region!==selRegion) return false;
+    if(selType!=='all'&&!d.types.includes(selType)) return false;
+    return true;
+  }).sort((a,b)=>b.ratings[selMonth]-a.ratings[selMonth]);
+
+  if(!dests.length){
+    document.getElementById('destResults').innerHTML='<div class="no-results">No destinations match these filters.</div>';
+    return;
+  }
+
+  document.getElementById('destResults').innerHTML='<div class="dest-grid">'+dests.map(d=>{
+    const r=d.ratings[selMonth];
+    return `<div class="dest-card ${getRClass(r)}" onclick="jumpToDest('${d.id}')">
+      <div class="dest-card-top">
+        <div>
+          <div class="dest-card-name">${d.flag} ${d.name}</div>
+          <div class="dest-card-country">${d.country}</div>
+        </div>
+        <span class="rating-pill ${getRPill(r)}">${getRating(r)}</span>
+      </div>
+      <div class="dest-card-meta">
+        <span>✈ ${d.flight}</span>
+        <span>${'★'.repeat(d.kidRating)} kids</span>
+        ${typeTags(d.types)}
+      </div>
+      <div class="dest-card-tip">${d.notes[0]}</div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+function buildDestSelect(){
+  const groups={australia:'Australia',asia:'Asia',pacific:'Pacific',middleeast:'Middle East',longhaul:'Long-haul'};
+  let html='<option value="">— Select a destination —</option>';
+  Object.entries(groups).forEach(([k,label])=>{
+    const ds=DESTS.filter(d=>d.region===k);
+    html+=`<optgroup label="${label}">${ds.map(d=>`<option value="${d.id}">${d.flag} ${d.name}</option>`).join('')}</optgroup>`;
+  });
+  document.getElementById('destSelect').innerHTML=html;
+}
+
+function jumpToDest(id){
+  switchTab('byDest');
+  document.getElementById('destSelect').value=id;
+  showDestDetail();
+}
+
+function showDestDetail(){
+  const id=document.getElementById('destSelect').value;
+  const el=document.getElementById('destDetail');
+  if(!id){el.innerHTML='';return;}
+  const d=DESTS.find(x=>x.id===id);
+  if(!d) return;
+
+  const bestM=MONTHS.filter((_,i)=>d.ratings[i]>=4).join(', ')||'—';
+  const schBest=MONTHS.filter((_,i)=>d.ratings[i]>=3&&WA_SCH.includes(i)).join(', ')||'Limited overlap';
+
+  const BAR_MAX=90;
+  const bars=MONTHS.map((m,i)=>{
+    const r=d.ratings[i];
+    const h=Math.max(14,Math.round((r/5)*BAR_MAX));
+    return `<div class="bar-col">
+      <div class="bar-fill ${getBarClass(r)}" style="height:${h}px">${getRating(r).charAt(0)}</div>
+      <div class="bar-label">${m}</div>
+      ${WA_SCH.includes(i)?'<div class="bar-sch">●</div>':'<div style="height:12px"></div>'}
+    </div>`;
+  }).join('');
+
+  el.innerHTML=`
+    <div class="detail-header">
+      <div class="detail-name">${d.flag} ${d.name}</div>
+      <div class="detail-sub">
+        <span>${d.country}</span>
+        <span>✈ ${d.flight} from Perth</span>
+        <span>${'★'.repeat(d.kidRating)} family rating</span>
+      </div>
+      <div class="detail-types">${typeTags(d.types)}</div>
+    </div>
+    <div class="bar-chart-wrap">
+      <div class="bar-chart-title">Best months to visit — <span style="color:var(--teal)">● = WA school holidays</span></div>
+      <div class="bar-chart">${bars}</div>
+    </div>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-card-label">Best months</div>
+        <div class="info-card-value">${bestM}</div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">School holiday match</div>
+        <div class="info-card-value">${schBest}</div>
+      </div>
+    </div>
+    <div class="tips-block">
+      <h3>When to go</h3>
+      ${d.notes.map(n=>`<div class="tip-item"><span class="tip-check">→</span><span>${n}</span></div>`).join('')}
+    </div>
+    <div class="tips-block">
+      <h3>Tips for families with kids</h3>
+      ${d.kidsTips.map(t=>`<div class="tip-item"><span class="tip-check">✓</span><span>${t}</span></div>`).join('')}
+    </div>`;
+}
+
+function switchTab(id){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&id==='byMonth')||(i===1&&id==='byDest')));
+  document.getElementById('byMonth').classList.toggle('active',id==='byMonth');
+  document.getElementById('byDest').classList.toggle('active',id==='byDest');
+}
+
+buildMonthGrid();
+buildDestSelect();
+renderResults();
+</script>
+</body>
+</html>
