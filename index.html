@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Perth Family Holiday Planner</title>
+<meta name="description" content="Find the best family holidays departing from Perth, WA — matched to the time of year, WA school holidays, and the kind of trip you're after.">
+<meta property="og:title" content="Perth Family Holiday Planner">
+<meta property="og:description" content="Find the best family holidays from Perth, WA — beach, ski, city, nature and more.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231a1a1a'/%3E%3Ctext y='23' x='4' font-size='21' font-family='serif'%3E✈%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -139,11 +144,64 @@ select:focus{outline:none;border-color:#888}
 
 footer{text-align:center;padding:2rem;font-size:12px;color:var(--muted);border-top:1px solid var(--border);margin-top:3rem}
 
-@media(max-width:600px){
-  .main{padding:1.25rem}
-  .hero{padding:2rem 1.25rem}
-  .tab-bar{width:100%}
-  .tab-btn{flex:1;text-align:center;padding:9px 10px}
+/* SHARE BAR */
+.share-bar{display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap}
+.share-url{flex:1;min-width:0;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-family:'DM Sans',sans-serif;background:var(--white);color:var(--muted);cursor:text;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.share-btn,.print-btn{padding:8px 16px;font-size:12px;font-family:'DM Sans',sans-serif;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--white);cursor:pointer;color:var(--ink);transition:all 0.15s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.share-btn:hover,.print-btn:hover{background:var(--sand);border-color:#aaa}
+.share-btn.copied{background:var(--teal-light);border-color:var(--teal);color:var(--teal-dark)}
+
+/* MOBILE */
+@media(max-width:700px){
+  .main{padding:1rem}
+  .hero{padding:1.75rem 1rem 1.75rem}
+  .hero h1{font-size:1.75rem}
+  .hero p{font-size:14px}
+  .hero-tags{gap:6px}
+  .hero-tag{font-size:11px;padding:3px 9px}
+  .tab-bar{width:100%;border-radius:var(--radius)}
+  .tab-btn{flex:1;text-align:center;padding:10px 8px;font-size:13px}
+  .month-grid{grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:1.5rem}
+  .month-btn{padding:8px 4px 6px;font-size:12px}
+  .sch-dot{font-size:9px}
+  .filter-row{gap:5px}
+  .filter-btn{padding:4px 10px;font-size:11px}
+  .filter-label{font-size:11px;min-width:40px}
+  .dest-grid{grid-template-columns:1fr}
+  .dest-card{padding:0.9rem}
+  .dest-card-name{font-size:14px}
+  .info-grid{grid-template-columns:1fr 1fr}
+  .bar-chart{gap:2px}
+  .bar-label{font-size:8px}
+  .detail-name{font-size:22px}
+  select{max-width:100%}
+  .share-bar{flex-direction:column;align-items:stretch}
+  .share-url{width:100%}
+  .print-btn{display:none}
+}
+@media(max-width:400px){
+  .month-grid{grid-template-columns:repeat(3,1fr)}
+  .info-grid{grid-template-columns:1fr}
+}
+
+/* PRINT */
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:white;font-size:12px}
+  .hero{background:#1a1a1a !important;padding:1.5rem;-webkit-print-color-adjust:exact}
+  .hero::before,.hero::after{display:none}
+  .tab-bar,.filters-wrap,.legend,.month-grid,.month-section-label,.month-banner,.share-bar,.print-btn{display:none !important}
+  .section{display:block !important}
+  #byMonth{display:none !important}
+  #byDest{display:block !important}
+  .dest-select-wrap{display:none}
+  .main{padding:0 1rem}
+  .tips-block,.bar-chart-wrap,.info-card,.dest-card{break-inside:avoid}
+  .bar-great{background:#9fe1cb !important}
+  .bar-good{background:#a8ccf0 !important}
+  .bar-ok{background:#f7c97a !important}
+  .bar-avoid{background:#f0a5a5 !important}
+  footer{margin-top:1rem;padding:1rem;font-size:11px}
 }
 </style>
 </head>
@@ -170,6 +228,17 @@ footer{text-align:center;padding:2rem;font-size:12px;color:var(--muted);border-t
 
   <!-- BY MONTH -->
   <div id="byMonth" class="section active">
+    <div class="share-bar">
+      <input class="share-url" id="shareUrl" readonly value="" onclick="this.select()" title="Shareable link for this view">
+      <button class="share-btn" id="shareBtn" onclick="copyShareUrl()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.7"/></svg>
+        Copy link
+      </button>
+      <button class="print-btn" onclick="printDestination()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print / Save PDF
+      </button>
+    </div>
     <div class="month-section-label">Select a month</div>
     <div class="month-grid" id="monthGrid"></div>
     <div class="filters-wrap">
@@ -605,9 +674,90 @@ function switchTab(id){
   document.getElementById('byDest').classList.toggle('active',id==='byDest');
 }
 
+// ── URL STATE ────────────────────────────────────────────────────────────────
+function updateURL(){
+  const params=new URLSearchParams();
+  params.set('month',MONTHS[selMonth].toLowerCase());
+  if(selRegion!=='all') params.set('region',selRegion);
+  if(selType!=='all') params.set('type',selType);
+  const url=window.location.pathname+'?'+params.toString();
+  try{history.replaceState(null,'',url);}catch(e){}
+  const base=(window.location.origin&&window.location.origin!=='null')?window.location.origin:'';
+  const display=base?base+url:params.toString();
+  document.getElementById('shareUrl').value=display;
+}
+
+function readURL(){
+  const params=new URLSearchParams(window.location.search);
+  if(params.has('month')){
+    const m=MONTHS.findIndex(x=>x.toLowerCase()===params.get('month'));
+    if(m>=0) selMonth=m;
+  }
+  if(params.has('region')) selRegion=params.get('region');
+  if(params.has('type')) selType=params.get('type');
+}
+
+function copyShareUrl(){
+  const url=document.getElementById('shareUrl').value;
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn=document.getElementById('shareBtn');
+    btn.classList.add('copied');
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 18 4 13"/></svg> Copied!';
+    setTimeout(()=>{
+      btn.classList.remove('copied');
+      btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.7"/></svg> Copy link';
+    },2000);
+  }).catch(()=>{
+    document.getElementById('shareUrl').select();
+    document.execCommand('copy');
+  });
+}
+
+// ── PRINT ─────────────────────────────────────────────────────────────────────
+function printDestination(){
+  const id=document.getElementById('destSelect').value;
+  if(!id){
+    alert('Please select a destination in the "Browse by destination" tab first, then click Print.');
+    switchTab('byDest');
+    return;
+  }
+  window.print();
+}
+
+// ── PATCHED FUNCTIONS WITH URL UPDATE ────────────────────────────────────────
+const _origSelectMonth=selectMonth;
+function selectMonth(m){selMonth=m;buildMonthGrid();renderResults();updateURL();}
+
+const _origSetFilter=setFilter;
+function setFilter(kind,val,btn){
+  if(kind==='region') selRegion=val; else selType=val;
+  btn.closest('.filter-row').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderResults();
+  updateURL();
+}
+
+// ── RESTORE FILTER BUTTON ACTIVE STATES FROM URL ─────────────────────────────
+function restoreFilterUI(){
+  if(selRegion!=='all'){
+    document.querySelectorAll('.filter-row')[0].querySelectorAll('.filter-btn').forEach(b=>{
+      b.classList.toggle('active',b.textContent.trim().toLowerCase()===selRegion||(selRegion==='wa'&&b.textContent.trim()==='WA'));
+    });
+  }
+  if(selType!=='all'){
+    document.querySelectorAll('.filter-row')[1].querySelectorAll('.filter-btn').forEach(b=>{
+      b.classList.toggle('active',b.textContent.trim().toLowerCase()===selType);
+    });
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+readURL();
 buildMonthGrid();
 buildDestSelect();
 renderResults();
+restoreFilterUI();
+updateURL();
 </script>
 </body>
 </html>
